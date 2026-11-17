@@ -1,0 +1,1040 @@
+<title>CEO of Liam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a flight-plan board. Three columns on a laptop (now + today's track | talk + triage + lists | goals + week), runway grid across the bottom; tabs on a phone. Colour only ever means subject; the UI itself is ink on paper. */
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --sunk:#E3E7ED; --ink:#12151B; --muted:#596273; --faint:#8A93A3; --line:#D3D9E2;
+  --risk:#C2341C; --ok:#1C7A4E; --on-ink:#FFFFFF;
+  --s-MP:#8B3FC7; --s-LA:#2563EB; --s-MATHS:#0D8A7C; --s-PHYS:#DD5A0C; --s-PDA:#4D7C0F; --s-XEN:#9C6206; --s-ORBIT:#CF2A6E; --s-LIFE:#6B7280;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0D0F14; --surface:#151920; --sunk:#1C212A; --ink:#E8EBF1; --muted:#9BA4B4; --faint:#6E7788; --line:#283040;
+  --risk:#FF6A50; --ok:#4FC48A; --on-ink:#0D0F14;
+  --s-MP:#B37EF0; --s-LA:#6E9DFF; --s-MATHS:#3CC4B2; --s-PHYS:#FF8B47; --s-PDA:#8FC14A; --s-XEN:#D9A443; --s-ORBIT:#FF6EA8; --s-LIFE:#9BA4B4;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D0F14; --surface:#151920; --sunk:#1C212A; --ink:#E8EBF1; --muted:#9BA4B4; --faint:#6E7788; --line:#283040;
+  --risk:#FF6A50; --ok:#4FC48A; --on-ink:#0D0F14;
+  --s-MP:#B37EF0; --s-LA:#6E9DFF; --s-MATHS:#3CC4B2; --s-PHYS:#FF8B47; --s-PDA:#8FC14A; --s-XEN:#D9A443; --s-ORBIT:#FF6EA8; --s-LIFE:#9BA4B4;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balance;letter-spacing:-0.01em}
+h2{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-stretch:118%}
+p{margin:0}
+
+/* subject colour plumbing */
+[data-s]{--s:var(--s-LIFE)}
+[data-s="MP"]{--s:var(--s-MP)} [data-s="LA"]{--s:var(--s-LA)} [data-s="MATHS"]{--s:var(--s-MATHS)} [data-s="PHYS"]{--s:var(--s-PHYS)}
+[data-s="PDA"]{--s:var(--s-PDA)} [data-s="XEN"]{--s:var(--s-XEN)} [data-s="ORBIT"]{--s:var(--s-ORBIT)} [data-s="LIFE"]{--s:var(--s-LIFE)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:0.02em;padding:1px 7px 1px 6px;border-radius:999px;color:var(--s);background:color-mix(in srgb,var(--s) 13%,transparent);white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:2px;background:var(--s)}
+.tier{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:1px 6px;border-radius:4px;white-space:nowrap}
+.tier.must{background:var(--ink);color:var(--on-ink)}
+.tier.planned{border:1px solid var(--line);color:var(--muted)}
+.tier.optional{border:1px dashed var(--line);color:var(--faint)}
+
+/* frame */
+.app{max-width:1440px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.top-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:6px;font-family:var(--f-display)}
+.brand .mark{font-weight:800;font-stretch:125%;font-size:20px;letter-spacing:-0.02em}
+.brand .of{font-weight:500;font-stretch:100%;color:var(--muted);font-size:15px}
+.hdr-date{color:var(--muted);font-size:13px}
+.countdowns{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.cd{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:3px 8px;font-size:12px;white-space:nowrap}
+.cd .t{font-family:var(--f-mono);font-weight:600}
+.cd .sw{width:7px;height:7px;border-radius:2px;background:var(--s)}
+.tabs{display:flex;gap:4px;margin-top:10px;overflow-x:auto}
+.tabs button{border:1px solid transparent;background:none;padding:6px 12px;border-radius:999px;font-weight:600;font-size:13px;color:var(--muted);white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--on-ink)}
+
+.banner{border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-weight:500;background:var(--ink);color:var(--on-ink)}
+.banner.risk{background:var(--risk);color:#fff}
+
+.board{display:flex;flex-direction:column;gap:14px}
+.col{display:contents}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.sub{color:var(--muted);font-size:12px}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:13px;line-height:1.2}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted);padding-inline:6px}
+.btn:disabled{opacity:.5;cursor:default}
+input[type=text],textarea,select{background:var(--sunk);border:1px solid transparent;border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--ink);outline:none;background:var(--surface)}
+select{width:auto}
+
+/* phone ordering + tabs */
+#sec-now{order:1} #sec-talk{order:2} #sec-triage{order:3} #sec-day{order:4} #sec-asks{order:5}
+#sec-goals{order:6} #sec-week{order:7} #sec-runway{order:8} #sec-todo{order:9} #sec-park{order:10}
+@media (max-width:1099px){
+  .board{max-width:760px;margin:0 auto}
+  body[data-tab="today"] .board [data-tab]:not([data-tab="today"]),
+  body[data-tab="week"] .board [data-tab]:not([data-tab="week"]),
+  body[data-tab="runway"] .board [data-tab]:not([data-tab="runway"]),
+  body[data-tab="goals"] .board [data-tab]:not([data-tab="goals"]),
+  body[data-tab="lists"] .board [data-tab]:not([data-tab="lists"]){display:none}
+  .countdowns{margin-left:0;width:100%}
+}
+@media (min-width:1100px){
+  .tabs{display:none}
+  .board{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr) minmax(0,.86fr);gap:18px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:18px;min-width:0}
+  #sec-runway{grid-column:1/-1}
+}
+
+/* NOW */
+.now{padding:18px}
+.now-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.now-title{font-size:clamp(22px,3.2vw,30px);font-weight:800;font-stretch:115%;line-height:1.08;margin:6px 0 8px}
+.now-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.now-time{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-top:10px}
+.bar{height:6px;border-radius:3px;background:var(--sunk);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--s);border-radius:3px}
+.now-detail{margin-top:12px;max-width:62ch}
+.now-stop{margin-top:6px;color:var(--muted);max-width:62ch}
+.now-stop b{color:var(--ink);font-weight:600}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.next{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.next .lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.next .when{font-family:var(--f-mono);font-weight:600}
+.loose{margin-top:12px;background:var(--sunk);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.loose-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.loose-row span{flex:1 1 160px;min-width:0}
+.ceo-line{margin-top:14px;font-size:13px;color:var(--muted);max-width:66ch}
+.ceo-line b{color:var(--ink);font-weight:600}
+
+/* TODAY track */
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:58px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.row{position:relative}
+.row-main{display:grid;grid-template-columns:48px 20px minmax(0,1fr) auto;gap:10px;align-items:start;width:100%;text-align:left;background:none;border:0;padding:8px 0;border-radius:8px}
+.row-main:hover .row-title{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.row .t{font-family:var(--f-mono);font-size:12px;line-height:1.35;color:var(--ink);padding-top:1px}
+.row .t .end{color:var(--faint)}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--s);background:var(--surface);margin:2px 0 0 3px;position:relative;z-index:1;display:grid;place-items:center}
+.row.is-done .dot{background:var(--s)}
+.row.is-done .dot svg{display:block}
+.dot svg{display:none;width:9px;height:9px;color:var(--surface)}
+.row.is-active .dot{box-shadow:0 0 0 4px color-mix(in srgb,var(--s) 25%,transparent)}
+.row.is-skipped .dot{border-style:dashed}
+.row.is-skipped .row-title{text-decoration:line-through;color:var(--muted)}
+.row.is-past:not(.is-done):not(.is-skipped) .row-title{color:var(--muted)}
+.row-title{font-weight:600;display:block}
+.row-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px;font-size:12px;color:var(--muted)}
+.row .st{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);padding-top:2px;white-space:nowrap}
+.row.is-active .st{color:var(--ink)}
+.row-more{margin:0 0 10px 78px;padding:10px 12px;background:var(--sunk);border-radius:8px;display:flex;flex-direction:column;gap:6px}
+.row-more .k{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.nowline{display:flex;align-items:center;gap:8px;margin:2px 0;position:relative;z-index:1}
+.nowline .mono{font-size:11px;font-weight:600;background:var(--ink);color:var(--on-ink);border-radius:4px;padding:1px 5px}
+.nowline::after{content:"";flex:1;height:2px;background:var(--ink)}
+.changes{margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* TALK */
+.thread{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;padding-right:4px;margin-bottom:12px}
+.msg{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;align-items:start}
+.msg .who{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.msg .who .mono{display:block;font-weight:400;letter-spacing:0;text-transform:none;color:var(--faint)}
+.msg.from-liam .body{background:var(--sunk);border-radius:8px;padding:6px 10px}
+.msg.from-ceo .who{color:var(--ink)}
+.msg .body{white-space:pre-wrap;overflow-wrap:anywhere}
+.msg .undo{margin-top:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.qchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600}
+.qchip:hover{border-color:var(--ink)}
+.talk-form{display:flex;flex-direction:column;gap:8px}
+.talk-form textarea{resize:vertical;min-height:62px}
+.talk-row{display:flex;gap:8px;align-items:center}
+.talk-row .partial{flex:1;min-width:0;color:var(--muted);font-style:italic;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mic{display:inline-flex;align-items:center;gap:6px}
+.mic svg{width:15px;height:15px}
+.mic.on{background:var(--risk);border-color:var(--risk);color:#fff}
+.state{font-size:12px;color:var(--muted)}
+.state.busy::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink);margin-right:6px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.state.busy::before{animation:none}}
+
+/* TRIAGE */
+.triage{border-color:var(--s-ORBIT)}
+.tq{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.tq p{flex:1;min-width:0}
+.yn{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-shrink:0}
+.yn button{border:0;background:var(--surface);padding:6px 12px;font-weight:600;font-size:12px}
+.yn button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+.verdict{margin-top:12px;border-radius:8px;padding:12px;background:var(--sunk)}
+.verdict h3{font-size:15px;margin-bottom:4px}
+.verdict .acts{margin-top:10px;align-items:center}
+
+/* ASKS / LISTS */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list li{padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0;padding-top:2px}
+.ask .why{font-size:12px;color:var(--muted);margin-top:2px}
+.ask form{display:flex;gap:6px;margin-top:8px}
+.todo{display:flex;gap:10px;align-items:flex-start}
+.todo input[type=checkbox]{width:17px;height:17px;margin-top:2px;accent-color:var(--ink);flex-shrink:0}
+.todo .txt{flex:1;min-width:0}
+.todo.done .txt{text-decoration:line-through;color:var(--faint)}
+.todo .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12px;color:var(--muted);align-items:center}
+.due.late{color:var(--risk);font-weight:600}
+.tier-h{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px}
+.add{display:flex;gap:6px;margin-top:12px}
+.add input{flex:1}
+.park-acts{display:flex;gap:2px}
+
+/* WEEK */
+.week{display:flex;flex-direction:column}
+.wday{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.wday:first-child{border-top:0;padding-top:0}
+.wday .d{font-family:var(--f-display);font-stretch:112%}
+.wday .d b{display:block;font-size:22px;line-height:1;font-weight:800}
+.wday .d span{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.wday.today .d b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:var(--s)}
+.wday .theme{font-weight:600;margin:3px 0 4px}
+.wday ul{margin:0;padding-left:16px;font-size:13px}
+.wday ul.pl{color:var(--muted)}
+.wday li{margin:2px 0}
+
+/* RUNWAY */
+.rw-wrap{overflow-x:auto}
+.rw{display:grid;grid-template-columns:repeat(7,minmax(92px,1fr));gap:6px;min-width:680px}
+.rw .wh{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.tile{border-radius:8px;padding:7px 8px 8px;min-height:84px;background:color-mix(in srgb,var(--s) 11%,var(--surface));border:1px solid color-mix(in srgb,var(--s) 30%,var(--line));display:flex;flex-direction:column;gap:4px;position:relative}
+.tile.prov{background:var(--surface);border-style:dashed}
+.tile.none{background:transparent;border:1px dashed var(--line);opacity:.55}
+.tile.past{opacity:.5}
+.tile.today{outline:2px solid var(--ink);outline-offset:1px}
+.tile .n{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);font-size:12px;font-weight:600}
+.tile .n .m{color:var(--muted);font-weight:400;font-size:10px}
+.tile .lab{font-size:12px;line-height:1.25;color:var(--ink)}
+.tile .sbar{height:3px;border-radius:2px;background:var(--s)}
+.dl{font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;border-radius:4px;padding:2px 5px;line-height:1.25}
+.dl.test,.dl.exam{background:var(--ink);color:var(--on-ink)}
+.dl.deadline{border:1px solid var(--ink)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* GOALS */
+.goal{display:flex;flex-direction:column;gap:4px}
+.goal .gh{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.goal .gt{font-weight:700}
+.goal .gid{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-right:6px}
+.goal .gm{font-size:13px;color:var(--muted)}
+.goal .gn{font-size:13px}
+.goal .gn b{font-weight:600}
+.pill{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;padding:2px 8px;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.pill.on-track{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border-color:transparent}
+.pill.at-risk{background:color-mix(in srgb,var(--risk) 12%,transparent);color:var(--risk);border-color:transparent}
+.pill.off-track{background:var(--risk);color:#fff;border-color:transparent}
+.weeknote{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px}
+.weeknote .k{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+
+.sys{margin-top:22px;font-size:12px;color:var(--faint);display:flex;gap:6px 16px;flex-wrap:wrap;justify-content:center;text-align:center}
+.sys b{color:var(--muted);font-weight:600}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="top-in">
+      <div class="brand"><span class="mark">CEO</span><span class="of">of Liam</span></div>
+      <span class="hdr-date" id="hdrDate"></span>
+      <div class="countdowns" id="hdrCount"></div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" data-t="today" aria-selected="true">Today</button>
+      <button type="button" role="tab" data-t="week" aria-selected="false">Week</button>
+      <button type="button" role="tab" data-t="runway" aria-selected="false">Runway</button>
+      <button type="button" role="tab" data-t="goals" aria-selected="false">Goals</button>
+      <button type="button" role="tab" data-t="lists" aria-selected="false">Lists</button>
+    </nav>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <main class="board">
+    <div class="col col-a">
+      <section id="sec-now" class="card now" data-tab="today" aria-live="polite">
+        <div class="now-top"><span class="eyebrow">Now</span></div>
+        <p class="now-title">Connecting to the Board…</p>
+        <p class="sub">Your plan, ticks and lists load from the Board's database.</p>
+      </section>
+      <section id="sec-day" class="card" data-tab="today">
+        <div class="sec-h"><h2>Today</h2><span class="sub" id="dayMeta"></span></div>
+        <div id="dayList"><p class="empty">Today's blocks appear here once the plan loads.</p></div>
+      </section>
+      <section id="sec-asks" class="card" data-tab="today">
+        <div class="sec-h"><h2>The CEO needs from you</h2><span class="sub">one line each</span></div>
+        <div id="askList"><p class="empty">Nothing right now.</p></div>
+      </section>
+    </div>
+
+    <div class="col col-b">
+      <section id="sec-talk" class="card" data-tab="today">
+        <div class="sec-h"><h2>Tell the CEO</h2><span class="state" id="talkState"></span></div>
+        <div class="thread" id="threadList"><p class="empty">Messages between you, the PA and the CEO show up here.</p></div>
+        <div class="chips" id="chips">
+          <button type="button" class="qchip" data-chip="behind">I'm behind</button>
+          <button type="button" class="qchip" data-chip="orbit">Orbit thing</button>
+          <button type="button" class="qchip" data-chip="early">Done early</button>
+          <button type="button" class="qchip" data-chip="cooked">Feeling cooked</button>
+          <button type="button" class="qchip" data-chip="rain">Rain check</button>
+        </div>
+        <form class="talk-form" id="talkForm">
+          <label for="talkInput" class="sub">Type or dictate. One lazy line is fine.</label>
+          <textarea id="talkInput" rows="2" placeholder="e.g. behind, an Orbit bug ate an hour, Hand-In 4 not started"></textarea>
+          <div class="talk-row">
+            <button type="button" class="btn mic" id="micBtn" hidden aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              <span>Talk</span>
+            </button>
+            <span class="partial" id="partial"></span>
+            <button type="button" class="btn ghost" id="stopBtn" hidden>Stop</button>
+            <button type="submit" class="btn primary" id="sendBtn">Send</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="sec-triage" class="card triage" data-tab="today" hidden>
+        <div class="sec-h"><h2>Orbit triage</h2><button type="button" class="btn ghost" id="triageClose">Close</button></div>
+        <label for="triIssue" class="sub">What's going on?</label>
+        <input type="text" id="triIssue" placeholder="e.g. a creator says their event link 404s">
+        <div style="margin-top:10px">
+          <div class="tq"><p>Is it broken for real users right now? (not a feature, not polish)</p><div class="yn" data-q="0"><button type="button" data-v="1" aria-pressed="false">Yes</button><button type="button" data-v="0" aria-pressed="false">No</button></div></div>
+          <div class="tq"><p>Does waiting make it worse? (an event today, a creator stuck, users dropping off)</p><div class="yn" data-q="1"><button type="button" data-v="1" aria-pressed="false">Yes</button><button type="button" data-v="0" aria-pressed="false">No</button></div></div>
+          <div class="tq"><p id="triQ3">Can it really not wait until your next Orbit block?</p><div class="yn" data-q="2"><button type="button" data-v="1" aria-pressed="false">Yes</button><button type="button" data-v="0" aria-pressed="false">No</button></div></div>
+        </div>
+        <div class="verdict" id="triVerdict"><p class="sub">Answer the three questions. All three yes is an emergency; anything else waits for the next Orbit block.</p></div>
+      </section>
+
+
+      <section id="sec-todo" class="card" data-tab="lists">
+        <div class="sec-h"><h2>To-do</h2><span class="sub" id="todoMeta"></span></div>
+        <div id="todoList"><p class="empty">No to-dos yet. Add one below, or tell the CEO and it'll file it.</p></div>
+        <form class="add" id="todoForm">
+          <label for="todoText" class="sub" hidden>New to-do</label>
+          <input type="text" id="todoText" placeholder="Add a to-do">
+          <select id="todoTier" aria-label="Tier"><option value="must">Must</option><option value="planned" selected>Planned</option><option value="optional">Optional</option></select>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </section>
+
+      <section id="sec-park" class="card" data-tab="lists">
+        <div class="sec-h"><h2>Orbit parking list</h2><span class="sub">ideas wait here for an Orbit block</span></div>
+        <div id="parkList"><p class="empty">Empty. New features, polish and brainstorms land here instead of in study time.</p></div>
+        <form class="add" id="parkForm">
+          <label for="parkText" class="sub" hidden>New parking item</label>
+          <input type="text" id="parkText" placeholder="Park an Orbit idea">
+          <button class="btn" type="submit">Park</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="col col-c">
+      <section id="sec-goals" class="card" data-tab="goals">
+        <div class="sec-h"><h2>Goals</h2><span class="sub" id="goalsMeta"></span></div>
+        <div id="goalList"><p class="empty">Goals load from the Board.</p></div>
+      </section>
+      <section id="sec-week" class="card" data-tab="week">
+        <div class="sec-h"><h2>Next 7 days</h2><span class="sub" id="weekMeta"></span></div>
+        <div id="weekList"><p class="empty">The rolling week loads from the Board.</p></div>
+      </section>
+    </div>
+
+    <section id="sec-runway" class="card" data-tab="runway">
+      <div class="sec-h"><h2>Runway to 18 Dec</h2><span class="sub">solid = firm (next 7 days) · dashed = provisional, re-cut as you go</span></div>
+      <div class="rw-wrap"><div class="rw" id="runway"></div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+  </main>
+
+  <footer class="sys" id="sys"></footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const TZ = "Europe/London";
+  const SUBJ = { MP: "Modern Physics", LA: "Linear Algebra", MATHS: "P&MDE Maths", PHYS: "P&MDE Physics", PDA: "Data Analysis", XEN: "Xenith", ORBIT: "Orbit", LIFE: "Life" };
+  const TIERS = ["must", "planned", "optional"];
+  const KINDS = ["study", "work", "orbit", "meal", "move", "break", "admin", "test", "life"];
+  const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const PA_MODEL = { model: "claude-haiku-5-5", modelTier: "quick", cache: false };
+  const CEO_MODEL = { model: "claude-sonnet-5-5", modelTier: "default", effort: "medium", cache: false };
+  const CHECK_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5"/></svg>';
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const subj = (s) => (SUBJ[s] ? s : "LIFE");
+
+  // ---------- time (Europe/London; the day runs 03:00 → 03:00 because Liam sleeps ~02:00) ----------
+  const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  function parts(d) { const o = {}; for (const p of fmt.formatToParts(d)) o[p.type] = p.value; return o; }
+  function calKey(d) { const o = parts(d); return `${o.year}-${o.month}-${o.day}`; }
+  function dayKey(d = new Date()) { return calKey(new Date(d.getTime() - 3 * 3600e3)); }
+  function nowMin(d = new Date()) { const o = parts(d); let m = (+o.hour) * 60 + (+o.minute); if (calKey(d) !== dayKey(d)) m += 1440; return m; }
+  function toMin(t) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || "").trim()); return m ? (+m[1]) * 60 + (+m[2]) : NaN; }
+  function hm(m) { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
+  function addDays(key, n) { const d = new Date(key + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function dowOf(key) { return new Date(key + "T12:00:00Z").getUTCDay(); }
+  function dayLabel(key) { const d = new Date(key + "T12:00:00Z"); return `${WD[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; }
+  function londonInstant(key, t) {
+    const [y, mo, da] = key.split("-").map(Number); const mm = toMin(t || "09:00"); const h = Math.floor(mm / 60), mi = mm % 60;
+    const guess = Date.UTC(y, mo - 1, da, h, mi); const o = parts(new Date(guess));
+    const asUtc = Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour, +o.minute);
+    return new Date(guess - (asUtc - guess));
+  }
+  function clock(iso) { try { const o = parts(new Date(iso)); return `${o.hour}:${o.minute}`; } catch { return ""; } }
+  function tminus(ms) {
+    if (ms <= 0) return "now";
+    const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4);
+    return d > 0 ? `T−${d}d ${h}h` : h > 0 ? `T−${h}h ${m}m` : `T−${m}m`;
+  }
+  const nowISO = () => new Date().toISOString();
+  const rid = (p) => p + Math.random().toString(36).slice(2, 8);
+
+  // ---------- state ----------
+  const S = {
+    db: null, sample: null, dict: null, day: dayKey(),
+    plan: null, planLoaded: false, ticks: {}, thread: [], todos: [], parking: [], questions: [],
+    week: null, runway: null, deadlines: null, goals: null, status: null, learned: null,
+    playbook: "", facts: "", expanded: new Set(), undo: null, busy: false, ctl: null,
+    drafts: {}, tri: [null, null, null], tab: "today", unsubDay: [], gotFirst: false,
+  };
+
+  // ---------- tabs ----------
+  function setTab(t) {
+    S.tab = t; document.body.dataset.tab = t;
+    for (const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-selected", String(b.dataset.t === t));
+    try { localStorage.setItem("ceo.tab", t); } catch {}
+    if (location.hash !== "#" + t) history.replaceState(null, "", "#" + t);
+  }
+  $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-t]"); if (b) setTab(b.dataset.t); });
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (["today", "week", "runway", "goals", "lists"].includes(h)) setTab(h); });
+  (() => { let t = location.hash.slice(1); if (!["today", "week", "runway", "goals", "lists"].includes(t)) { try { t = localStorage.getItem("ceo.tab") || "today"; } catch { t = "today"; } } setTab(["today", "week", "runway", "goals", "lists"].includes(t) ? t : "today"); })();
+
+  // ---------- plan helpers ----------
+  function blocks() { return (S.plan?.blocks || []).filter((b) => b && b.id).slice().sort((a, b) => toMin(a.start) - toMin(b.start)); }
+  const tickOf = (b) => S.ticks[b.id] || null;
+  const closed = (b) => { const t = tickOf(b); return !!t && (t.status === "done" || t.status === "skipped"); };
+  function situation() {
+    const bl = blocks(), n = nowMin();
+    const active = bl.find((b) => tickOf(b)?.status === "active");
+    const inWin = bl.find((b) => !closed(b) && toMin(b.start) <= n && n < toMin(b.end));
+    const cur = active || inWin || null;
+    const upcoming = bl.filter((b) => b !== cur && !closed(b) && toMin(b.start) >= (cur ? toMin(cur.start) : -1) && toMin(b.end) > n);
+    const next = upcoming.find((b) => toMin(b.start) >= n) || upcoming[0] || null;
+    const loose = bl.filter((b) => b !== cur && !closed(b) && toMin(b.end) <= n && tickOf(b)?.status !== "active");
+    return { bl, n, cur, next, loose };
+  }
+  function nextOrbitBlock() {
+    const n = nowMin();
+    const b = blocks().find((x) => subj(x.subject) === "ORBIT" && !closed(x) && toMin(x.start) > n);
+    if (b) return `today at ${b.start}`;
+    return "tomorrow's morning Orbit hour (09:30)";
+  }
+
+  // ---------- render: header ----------
+  function renderHeader() {
+    $("#hdrDate").textContent = dayLabel(S.day);
+    const items = (S.deadlines?.items || []).filter((d) => d.kind === "test" || d.kind === "exam");
+    const now = Date.now();
+    const up = items.map((d) => ({ d, at: londonInstant(d.date, d.time || "09:00").getTime() })).filter((x) => x.at > now - 3 * 36e5).sort((a, b) => a.at - b.at).slice(0, 3);
+    $("#hdrCount").innerHTML = up.map(({ d, at }) => `<span class="cd" data-s="${esc(subj(d.subject))}" title="${esc(d.title)} · ${esc(dayLabel(d.date))}${d.time ? " " + esc(d.time) : ""}"><span class="sw"></span>${esc(d.short || d.title)}<span class="t">${esc(tminus(at - now))}</span></span>`).join("");
+  }
+
+  // ---------- render: now ----------
+  function renderNow() {
+    const el = $("#sec-now");
+    if (!S.db) return;
+    if (!S.planLoaded) return;
+    const bannerEl = $("#banner"); bannerEl.hidden = true; bannerEl.className = "banner";
+    if (!S.plan) {
+      const wd = (S.week?.days || []).find((d) => d.date === S.day);
+      el.innerHTML = `<div class="now-top"><span class="eyebrow">Now · <span class="mono">${hm(nowMin())}</span></span></div>
+        <p class="now-title">No plan for ${esc(dayLabel(S.day))} yet</p>
+        <p class="now-detail">${wd ? `The week plan says: <b>${esc(wd.theme)}</b>. ` : ""}The CEO's morning run writes it at 08:20. If it hasn't landed, the CEO can plan it now from the week plan.</p>
+        <div class="acts">${S.sample ? `<button class="btn primary" data-act="planday">Plan today now</button>` : `<span class="sub">Planning from here needs Claude on this view; the morning run will still write it.</span>`}</div>`;
+      return;
+    }
+    const { n, cur, next, loose } = situation();
+    let html = `<div class="now-top"><span class="eyebrow">Now · <span class="mono">${hm(n)}</span></span><span class="sub">${esc(S.plan.headline || "")}</span></div>`;
+    if (cur) {
+      const s = subj(cur.subject), t = tickOf(cur), st = toMin(cur.start), en = toMin(cur.end);
+      const pct = Math.max(0, Math.min(100, ((n - st) / Math.max(1, en - st)) * 100));
+      const left = en - n;
+      const timeTxt = left >= 0 ? `${left} min left` : `${-left} min over`;
+      html += `<div data-s="${s}">
+        <div class="now-meta"><span class="chip">${esc(SUBJ[s])}</span><span class="tier ${esc(cur.tier || "planned")}">${esc(cur.tier || "planned")}</span>${t?.status === "active" ? `<span class="sub">started ${esc(clock(t.startedAt))}</span>` : ""}</div>
+        <p class="now-title">${esc(cur.title)}</p>
+        <p class="now-time">${esc(cur.start)}–${esc(cur.end)} · ${esc(timeTxt)}</p>
+        <div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+        ${cur.detail ? `<p class="now-detail">${esc(cur.detail)}</p>` : ""}
+        ${cur.stop ? `<p class="now-stop"><b>Stop when:</b> ${esc(cur.stop)}</p>` : ""}
+        <div class="acts">
+          ${t?.status === "active" ? "" : `<button class="btn" data-act="start" data-id="${esc(cur.id)}">Start</button>`}
+          <button class="btn primary" data-act="done" data-id="${esc(cur.id)}">Done</button>
+          <button class="btn ghost" data-act="skip" data-id="${esc(cur.id)}">Skip</button>
+        </div></div>`;
+      if (s === "ORBIT" && left <= 10) {
+        bannerEl.hidden = false;
+        if (left < 0) { bannerEl.classList.add("risk"); bannerEl.textContent = `Orbit is ${-left} min past its end. Stop at a clean point, park the rest, and switch${next ? ` to ${next.title}` : ""}.`; }
+        else bannerEl.textContent = `Orbit block ends at ${cur.end}. Find a clean stopping point and park the leftovers${next ? `; next is ${next.title}` : ""}.`;
+      }
+    } else if (next) {
+      html += `<p class="now-title">Free until ${esc(next.start)}</p><p class="now-detail">Slack time. Eat, move, or start early if you feel like it.</p>`;
+    } else {
+      html += `<p class="now-title">That's today's plan done</p><p class="now-detail">Do the rain check if you haven't, then stop. Tomorrow's plan lands at 08:20.</p>`;
+    }
+    if (next) {
+      const s = subj(next.subject);
+      html += `<div class="next" data-s="${s}"><span class="lbl">Next</span><span class="when">${esc(next.start)}</span><span>${esc(next.title)}</span><span class="chip">${esc(SUBJ[s])}</span>${cur ? "" : `<button class="btn" data-act="start" data-id="${esc(next.id)}">Start now</button>`}</div>`;
+    }
+    if (loose.length) {
+      html += `<div class="loose"><span class="sub">Not ticked yet. Tap what happened so the CEO learns your timings.</span>${loose.slice(-3).map((b) => `<div class="loose-row"><span><span class="mono">${esc(b.start)}</span> ${esc(b.title)}</span><button class="btn" data-act="done" data-id="${esc(b.id)}">Done</button><button class="btn ghost" data-act="skip" data-id="${esc(b.id)}">Didn't happen</button></div>`).join("")}</div>`;
+    }
+    if (S.plan.ceoNote) html += `<p class="ceo-line"><b>CEO:</b> ${esc(S.plan.ceoNote)}</p>`;
+    el.innerHTML = html;
+  }
+
+  // ---------- render: today's track ----------
+  function renderDay() {
+    const box = $("#dayList");
+    if (!S.planLoaded) return;
+    if (!S.plan) { box.innerHTML = `<p class="empty">No blocks yet for ${esc(dayLabel(S.day))}.</p>`; $("#dayMeta").textContent = ""; return; }
+    const { bl, n } = situation();
+    $("#dayMeta").textContent = `${dayLabel(S.day)} · rev ${S.plan.rev || 1}`;
+    let html = '<ol class="tl">'; let placed = false;
+    for (const b of bl) {
+      const st = toMin(b.start), en = toMin(b.end);
+      if (!placed && st > n) { html += `<li class="nowline" aria-label="Now"><span class="mono">${hm(n)}</span></li>`; placed = true; }
+      const t = tickOf(b), s = subj(b.subject);
+      const status = t?.status || "";
+      const cls = ["row", status === "done" && "is-done", status === "active" && "is-active", status === "skipped" && "is-skipped", en <= n && "is-past"].filter(Boolean).join(" ");
+      const stTxt = status === "done" ? (t.actualMin ? `${t.actualMin}m` : "done") : status === "active" ? "on it" : status === "skipped" ? "skipped" : "";
+      const open = S.expanded.has(b.id);
+      html += `<li class="${cls}" data-s="${s}">
+        <button class="row-main" data-act="toggle" data-id="${esc(b.id)}" aria-expanded="${open}">
+          <span class="t">${esc(b.start)}<br><span class="end">${esc(b.end)}</span></span>
+          <span class="dot">${CHECK_SVG}</span>
+          <span><span class="row-title">${esc(b.title)}</span><span class="row-meta"><span class="chip">${esc(SUBJ[s])}</span><span class="tier ${esc(TIERS.includes(b.tier) ? b.tier : "planned")}">${esc(b.tier || "planned")}</span>${b.est ? `<span>${esc(b.est)} min</span>` : ""}</span></span>
+          <span class="st">${esc(stTxt)}</span>
+        </button>
+        ${open ? `<div class="row-more">
+          ${b.detail ? `<p>${esc(b.detail)}</p>` : ""}
+          ${b.stop ? `<p><span class="k">Stop when</span>${esc(b.stop)}</p>` : ""}
+          ${b.why ? `<p><span class="k">Why</span>${esc(b.why)}</p>` : ""}
+          <div class="acts" style="margin-top:4px">
+            ${status !== "active" && status !== "done" ? `<button class="btn" data-act="start" data-id="${esc(b.id)}">Start</button>` : ""}
+            ${status !== "done" ? `<button class="btn primary" data-act="done" data-id="${esc(b.id)}">Done</button>` : ""}
+            ${status !== "skipped" ? `<button class="btn ghost" data-act="skip" data-id="${esc(b.id)}">Skip</button>` : ""}
+            ${status ? `<button class="btn ghost" data-act="reset" data-id="${esc(b.id)}">Reset</button>` : ""}
+          </div></div>` : ""}
+      </li>`;
+    }
+    if (!placed) html += `<li class="nowline" aria-label="Now"><span class="mono">${hm(n)}</span></li>`;
+    html += "</ol>";
+    const ch = (S.plan.changes || []).slice(-2);
+    if (ch.length) html += `<p class="changes">${ch.map((c) => `<span class="mono">${esc(clock(c.at))}</span> ${esc(c.summary)}`).join("<br>")}</p>`;
+    box.innerHTML = html;
+  }
+
+  // ---------- render: thread ----------
+  function renderThread() {
+    const box = $("#threadList");
+    const items = S.thread.slice(0, 14).reverse();
+    if (!items.length) { box.innerHTML = `<p class="empty">Messages between you, the PA and the CEO show up here.</p>`; return; }
+    const who = { liam: "You", pa: "PA", ceo: "CEO", board: "Board" };
+    box.innerHTML = items.map((m) => `<div class="msg from-${esc(m.from)}"><span class="who">${esc(who[m.from] || m.from)}<span class="mono">${esc(clock(m.at))}</span></span><div class="body">${esc(m.text)}${S.undo && S.undo.msgId === m._id ? `<div class="undo"><button class="btn ghost" data-act="undo">Undo this change</button></div>` : ""}</div></div>`).join("");
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ---------- render: questions ----------
+  function renderAsks() {
+    const box = $("#askList");
+    const open = S.questions.filter((q) => q.status !== "answered").sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!open.length) { box.innerHTML = `<p class="empty">Nothing right now. The CEO adds a question here only when the plan depends on it.</p>`; return; }
+    box.innerHTML = `<ul class="list">${open.map((q) => `<li class="ask"><p>${esc(q.q)}</p>${q.why ? `<p class="why">${esc(q.why)}</p>` : ""}
+      <form data-q="${esc(q._id)}"><label class="sub" for="ans-${esc(q._id)}" hidden>Answer</label><input type="text" id="ans-${esc(q._id)}" value="${esc(S.drafts[q._id] || "")}" placeholder="Your answer"><button class="btn" type="submit">Save</button></form></li>`).join("")}</ul>`;
+  }
+
+  // ---------- render: todos + parking ----------
+  function renderTodos() {
+    const box = $("#todoList");
+    const todayK = S.day;
+    const items = S.todos.slice().sort((a, b) => (a.done - b.done) || (TIERS.indexOf(a.tier) - TIERS.indexOf(b.tier)) || String(a.due || "9").localeCompare(String(b.due || "9")));
+    const openN = items.filter((t) => !t.done).length;
+    $("#todoMeta").textContent = openN ? `${openN} open` : "";
+    if (!items.length) { box.innerHTML = `<p class="empty">No to-dos yet. Add one below, or tell the CEO and it'll file it.</p>`; return; }
+    let html = "";
+    for (const tier of TIERS) {
+      const list = items.filter((t) => (TIERS.includes(t.tier) ? t.tier : "planned") === tier && (!t.done || (t.doneAt && Date.now() - new Date(t.doneAt).getTime() < 36 * 36e5)));
+      if (!list.length) continue;
+      html += `<p class="tier-h">${tier}</p><ul class="list">` + list.map((t) => {
+        const late = t.due && !t.done && t.due < todayK;
+        return `<li class="todo ${t.done ? "done" : ""}" data-s="${esc(subj(t.subject))}"><input type="checkbox" id="td-${esc(t._id)}" data-act="todo" data-id="${esc(t._id)}" ${t.done ? "checked" : ""}><label class="txt" for="td-${esc(t._id)}">${esc(t.text)}<span class="meta">${t.subject && t.subject !== "LIFE" ? `<span class="chip">${esc(SUBJ[subj(t.subject)])}</span>` : ""}${t.due ? `<span class="due ${late ? "late" : ""}">due ${esc(dayLabel(t.due))}</span>` : ""}</span></label></li>`;
+      }).join("") + "</ul>";
+    }
+    box.innerHTML = html || `<p class="empty">All clear.</p>`;
+  }
+  function renderPark() {
+    const box = $("#parkList");
+    const items = S.parking.filter((p) => p.status !== "done" && p.status !== "dropped").sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    if (!items.length) { box.innerHTML = `<p class="empty">Empty. New features, polish and brainstorms land here instead of in study time.</p>`; return; }
+    box.innerHTML = `<ul class="list">${items.map((p) => `<li class="todo"><span class="txt">${esc(p.text)}<span class="meta"><span>${esc(p.createdAt ? dayLabel(calKey(new Date(p.createdAt))) : "")}</span>${p.status === "scheduled" ? "<span>scheduled</span>" : ""}</span></span><span class="park-acts"><button class="btn ghost" data-act="park-done" data-id="${esc(p._id)}">Done</button><button class="btn ghost" data-act="park-drop" data-id="${esc(p._id)}">Drop</button></span></li>`).join("")}</ul>`;
+  }
+
+  // ---------- render: week, runway, goals ----------
+  function renderWeek() {
+    const box = $("#weekList");
+    const days = (S.week?.days || []).filter((d) => d.date >= S.day).slice(0, 7);
+    $("#weekMeta").textContent = S.week?.updatedAt ? `re-cut ${clock(S.week.updatedAt)} ${dayLabel(calKey(new Date(S.week.updatedAt)))}` : "";
+    if (!days.length) { box.innerHTML = `<p class="empty">The rolling week appears here after the CEO's first run.</p>`; return; }
+    box.innerHTML = `<div class="week">${days.map((d) => {
+      const dt = new Date(d.date + "T12:00:00Z");
+      return `<div class="wday ${d.date === S.day ? "today" : ""}" data-s="${esc(subj(d.subject))}"><div class="d"><span>${WD[dt.getUTCDay()]}</span><b>${dt.getUTCDate()}</b></div><div><span class="chip">${esc(SUBJ[subj(d.subject)])}</span><p class="theme">${esc(d.theme)}</p>${(d.must || []).length ? `<ul>${d.must.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${(d.planned || []).length ? `<ul class="pl">${d.planned.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${d.note ? `<p class="sub" style="margin-top:4px">${esc(d.note)}</p>` : ""}</div></div>`;
+    }).join("")}</div>${S.week?.ceoNote ? `<p class="ceo-line"><b>CEO:</b> ${esc(S.week.ceoNote)}</p>` : ""}`;
+  }
+  function renderRunway() {
+    const grid = $("#runway");
+    const days = S.runway?.days || [];
+    const map = new Map(days.map((d) => [d.date, d]));
+    const dls = new Map();
+    for (const d of S.deadlines?.items || []) { if (!dls.has(d.date)) dls.set(d.date, []); dls.get(d.date).push(d); }
+    const end = S.runway?.end || "2026-12-18";
+    const first = days[0]?.date || S.day;
+    let start = first; while (dowOf(start) !== 1) start = addDays(start, -1);
+    let last = end; while (dowOf(last) !== 0) last = addDays(last, 1);
+    let html = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => `<div class="wh">${w}</div>`).join("");
+    for (let k = start; k <= last; k = addDays(k, 1)) {
+      const d = map.get(k); const dt = new Date(k + "T12:00:00Z");
+      const s = subj(d?.subject); const ds = dls.get(k) || [];
+      const cls = ["tile", !d && "none", d && d.firm === false && "prov", k < S.day && "past", k === S.day && "today"].filter(Boolean).join(" ");
+      html += `<div class="${cls}" data-s="${s}" title="${esc(dayLabel(k))}${d ? " · " + esc(d.label) : ""}"><div class="n"><span>${dt.getUTCDate()}</span><span class="m">${dt.getUTCDate() === 1 || k === start ? MON[dt.getUTCMonth()] : ""}</span></div>${d ? `<div class="sbar"></div><div class="lab">${esc(d.label)}</div>` : ""}${ds.map((x) => `<span class="dl ${esc(x.kind)}">${esc(x.short || x.title)}${x.time ? " " + esc(x.time) : ""}</span>`).join("")}</div>`;
+    }
+    grid.innerHTML = html;
+    const used = [...new Set(days.map((d) => subj(d.subject)))];
+    $("#legend").innerHTML = used.map((s) => `<span data-s="${s}" class="chip">${esc(SUBJ[s])}</span>`).join("") + `<span><span class="dl test">TEST</span> test or exam</span><span><span class="dl deadline">DUE</span> deadline</span>`;
+  }
+  function renderGoals() {
+    const box = $("#goalList");
+    const items = S.goals?.items || [];
+    $("#goalsMeta").textContent = S.goals?.updatedAt ? `updated ${dayLabel(calKey(new Date(S.goals.updatedAt)))}` : "";
+    if (!items.length) { box.innerHTML = `<p class="empty">Goals load from the Board.</p>`; return; }
+    const label = { "on-track": "on track", "at-risk": "at risk", "off-track": "off track", unknown: "unknown", later: "later", "not-started": "not started" };
+    box.innerHTML = `<ul class="list">${items.map((g) => `<li class="goal"><div class="gh"><span class="gt"><span class="gid">${esc(g.id)}</span>${esc(g.title)}</span><span class="pill ${esc(g.status)}">${esc(label[g.status] || g.status)}</span></div>
+      ${g.measure ? `<p class="gm">${esc(g.measure)}${g.current ? ` · now: ${esc(g.current)}` : ""}${g.target ? ` · target: ${esc(g.target)}` : ""}</p>` : ""}
+      ${g.next ? `<p class="gn"><b>Next:</b> ${esc(g.next)}</p>` : ""}</li>`).join("")}</ul>
+      ${S.goals?.weekNote ? `<div class="weeknote"><span class="k">How this week serves the goals</span>${esc(S.goals.weekNote)}</div>` : ""}`;
+  }
+  function renderSys() {
+    const st = S.status || {};
+    const n = nowMin();
+    const cks = (st.checkins || []).filter((c) => c.date === S.day || !c.date).filter((c) => toMin(c.at) > n).map((c) => c.at);
+    const parts2 = [];
+    if (S.plan) parts2.push(`Plan rev <b>${esc(S.plan.rev || 1)}</b> · ${esc(S.plan.updatedBy || "")} ${esc(clock(S.plan.updatedAt))}`);
+    parts2.push(`Last CEO run: <b>${st.lastCeoRun ? esc(dayLabel(calKey(new Date(st.lastCeoRun))) + " " + clock(st.lastCeoRun)) : "not yet"}</b>`);
+    parts2.push(`Next check-in: <b>${cks.length ? esc(cks[0]) : "none booked"}</b>`);
+    parts2.push(`Morning plan: <b>08:20 daily</b>`);
+    const unread = S.thread.filter((m) => m.from === "liam" && !m.handled).length;
+    if (unread) parts2.push(`${unread} message${unread > 1 ? "s" : ""} waiting for the CEO`);
+    $("#sys").innerHTML = parts2.map((p) => `<span>${p}</span>`).join("");
+  }
+  function renderAll() { renderHeader(); renderNow(); renderDay(); renderThread(); renderAsks(); renderTodos(); renderPark(); renderWeek(); renderRunway(); renderGoals(); renderSys(); }
+
+  // ---------- db wiring ----------
+  function snapDocs(q) { return q.docs.map((d) => ({ _id: d.id, ...d.data() })); }
+  function subscribeDay() {
+    for (const u of S.unsubDay) try { u(); } catch {}
+    S.unsubDay = [];
+    S.planLoaded = false; S.plan = null; S.ticks = {};
+    const db = S.db;
+    S.unsubDay.push(db.doc("days/" + S.day).onSnapshot((s) => { S.plan = s.exists ? s.data() : null; S.planLoaded = true; S.gotFirst = true; renderNow(); renderDay(); renderSys(); }, dbErr));
+    S.unsubDay.push(db.collection("ticks").where("date", "==", S.day).onSnapshot((q) => { const m = {}; for (const d of q.docs) { const v = d.data(); if (v.blockId) m[v.blockId] = v; } S.ticks = m; renderNow(); renderDay(); }, dbErr));
+  }
+  function dbErr(e) {
+    if (e?.code === "revoked") { showBanner("This view lost access to the Board's data. Reopen the page from claude.ai."); return; }
+    showBanner("Lost the live connection to the Board's data. Reload the page to reconnect.");
+  }
+  function showBanner(t, risk) { const b = $("#banner"); b.hidden = false; b.className = "banner" + (risk ? " risk" : ""); b.textContent = t; }
+  async function start() {
+    const claude = window.claude;
+    const [db, sample, dict] = await Promise.all([
+      claude?.use ? claude.use("db").catch(() => null) : null,
+      claude?.use ? claude.use("sample").catch(() => null) : null,
+      claude?.use ? claude.use("dictation").catch(() => null) : null,
+    ]);
+    S.db = db; S.sample = sample; S.dict = dict;
+    if (!db) {
+      $("#sec-now").innerHTML = `<div class="now-top"><span class="eyebrow">Now</span></div><p class="now-title">The Board's data isn't reachable here</p><p class="now-detail">Open this page from claude.ai while signed in. Your plan, ticks and lists live in its database.</p>`;
+      return;
+    }
+    const loadTimer = setTimeout(() => { if (!S.gotFirst) showBanner("Can't reach the Board's data yet. It'll fill in by itself once it connects."); }, 10000);
+    subscribeDay();
+    db.collection("thread").orderBy("at", "desc").limit(40).onSnapshot((q) => { S.thread = snapDocs(q); renderThread(); renderSys(); }, dbErr);
+    db.collection("todos").onSnapshot((q) => { S.todos = snapDocs(q); renderTodos(); }, dbErr);
+    db.collection("parking").onSnapshot((q) => { S.parking = snapDocs(q); renderPark(); }, dbErr);
+    db.collection("questions").onSnapshot((q) => { S.questions = snapDocs(q); renderAsks(); }, dbErr);
+    const one = (path, key, fn) => db.doc(path).onSnapshot((s) => { S[key] = s.exists ? s.data() : null; fn && fn(); }, dbErr);
+    one("plan/week", "week", () => { renderWeek(); renderNow(); });
+    one("plan/runway", "runway", renderRunway);
+    one("plan/deadlines", "deadlines", () => { renderHeader(); renderRunway(); });
+    one("plan/goals", "goals", renderGoals);
+    one("system/status", "status", renderSys);
+    one("brain/learned", "learned");
+    db.doc("brain/playbook").onSnapshot((s) => { S.playbook = s.exists ? String(s.data().text || "") : ""; }, dbErr);
+    db.doc("brain/facts").onSnapshot((s) => { S.facts = s.exists ? String(s.data().text || "") : ""; }, dbErr);
+    const firstClear = setInterval(() => { if (S.gotFirst) { clearTimeout(loadTimer); clearInterval(firstClear); const b = $("#banner"); if (b.textContent.startsWith("Can't reach")) b.hidden = true; } }, 500);
+    setupDictation();
+  }
+  setInterval(() => {
+    const k = dayKey();
+    if (k !== S.day) { S.day = k; S.expanded.clear(); if (S.db) subscribeDay(); renderAll(); return; }
+    renderHeader(); renderNow(); renderDay(); renderSys();
+  }, 30000);
+  renderHeader(); renderRunway();
+
+  // ---------- writes ----------
+  async function addThread(m) {
+    if (!S.db) return null;
+    const ref = S.db.collection("thread").doc(rid("m"));
+    await ref.set({ at: nowISO(), date: S.day, handled: false, ...m });
+    return ref.id;
+  }
+  async function setTick(id, status) {
+    const b = blocks().find((x) => x.id === id); if (!b || !S.db) return;
+    const prev = tickOf(b) || {};
+    const ref = S.db.doc(`ticks/${S.day}__${id}`);
+    if (status === "reset") { await ref.delete(); return; }
+    const now = new Date();
+    const rec = { date: S.day, blockId: id, title: b.title, subject: subj(b.subject), kind: b.kind || "", est: b.est || null, plannedStart: b.start, plannedEnd: b.end, status, source: "board", updatedAt: now.toISOString() };
+    if (status === "active") { rec.startedAt = now.toISOString(); rec.inferred = false; }
+    if (status === "done") {
+      let startedAt = prev.startedAt, inferred = false;
+      if (!startedAt) {
+        // no Start tap: assume it began at the later of its planned start and the last thing finished today
+        const lastDone = Object.values(S.ticks).filter((t) => t.status === "done" && t.doneAt).map((t) => new Date(t.doneAt).getTime()).filter((ms) => ms < now.getTime()).sort((a, b) => b - a)[0] || 0;
+        const planned = londonInstant(S.day, b.start).getTime() + (toMin(b.start) >= 1440 ? 864e5 : 0);
+        startedAt = new Date(Math.max(planned, lastDone)).toISOString(); inferred = true;
+      }
+      rec.startedAt = startedAt; rec.inferred = inferred; rec.doneAt = now.toISOString();
+      const mins = Math.round((now.getTime() - new Date(startedAt).getTime()) / 6e4);
+      rec.actualMin = mins > 0 && mins < 16 * 60 ? mins : null;
+    }
+    if (status === "skipped") { rec.doneAt = now.toISOString(); }
+    await ref.set(rec);
+  }
+
+  // ---------- click handling ----------
+  document.addEventListener("click", async (e) => {
+    const a = e.target.closest("[data-act]"); if (!a) return;
+    const act = a.dataset.act, id = a.dataset.id;
+    try {
+      if (act === "toggle") { S.expanded.has(id) ? S.expanded.delete(id) : S.expanded.add(id); renderDay(); }
+      else if (act === "start") await setTick(id, "active");
+      else if (act === "done") await setTick(id, "done");
+      else if (act === "skip") await setTick(id, "skipped");
+      else if (act === "reset") await setTick(id, "reset");
+      else if (act === "todo") { const t = S.todos.find((x) => x._id === id); if (t) await S.db.doc("todos/" + id).update({ done: a.checked, doneAt: a.checked ? nowISO() : null }); }
+      else if (act === "park-done") await S.db.doc("parking/" + id).update({ status: "done", doneAt: nowISO() });
+      else if (act === "park-drop") await S.db.doc("parking/" + id).update({ status: "dropped", doneAt: nowISO() });
+      else if (act === "undo") await undo();
+      else if (act === "planday") await runCEO("plan", "No plan exists for today yet. Plan the whole day from the week plan.");
+    } catch (err) { console.error(err); setState(writeErr(err)); }
+  });
+  function writeErr(err) { return err?.code === "quota_exceeded" ? "The Board's storage is full. Tell the CEO to prune old messages." : "Couldn't save that. Check your connection and try again."; }
+
+  // ---------- talk ----------
+  const input = $("#talkInput");
+  function setState(t, busy) { const el = $("#talkState"); el.textContent = t || ""; el.classList.toggle("busy", !!busy); }
+  $("#chips").addEventListener("click", (e) => {
+    const c = e.target.closest("[data-chip]"); if (!c) return;
+    const k = c.dataset.chip;
+    if (k === "orbit") { openTriage(input.value.trim()); return; }
+    const pre = { behind: "I'm behind: ", early: "Done early with ", cooked: "Feeling cooked. ", rain: "Rain check. Done: … Not done: … Vibe: …" }[k];
+    input.value = pre; input.focus(); input.setSelectionRange(input.value.length, input.value.length);
+    if (k === "rain") input.setSelectionRange(17, 18);
+  });
+  $("#talkForm").addEventListener("submit", (e) => { e.preventDefault(); send(); });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(); } });
+  $("#stopBtn").addEventListener("click", () => S.ctl?.abort());
+
+  function planSummary() {
+    return blocks().map((b) => { const t = tickOf(b); return `${b.id} | ${b.start}-${b.end} | ${subj(b.subject)} | ${b.tier || "planned"} | ${b.title}${t ? ` | ${t.status}${t.actualMin ? " " + t.actualMin + "min" : ""}` : ""}`; }).join("\n") || "(no plan for today)";
+  }
+  function recentThread(n) { return S.thread.slice(0, n).reverse().map((m) => `[${clock(m.at)} ${m.from}] ${m.text}`).join("\n"); }
+
+  function routerPrompt(text) {
+    const openQ = S.questions.filter((q) => q.status !== "answered").map((q) => `${q._id}: ${q.q}`).join("\n") || "(none)";
+    return `You are Liam's PA inside his planning board, "CEO of Liam". Liam has just typed or dictated a message (often lazy speech-to-text). Work out what he means and what the board should do. You never redesign the plan yourself: anything that changes the plan goes to the CEO as a "replan" action.
+
+THE PLAYBOOK (rules everyone follows):
+${S.playbook.slice(0, 14000) || "(playbook not loaded: be brief, kind and practical; protect study time; Orbit ideas go to parking)"}
+
+NOW: ${dayLabel(S.day)}, ${hm(nowMin())} Europe/London.
+TODAY'S PLAN (id | time | subject | tier | title | status):
+${planSummary()}
+OPEN QUESTIONS FROM THE CEO:
+${openQ}
+RECENT MESSAGES:
+${recentThread(8) || "(none)"}
+
+LIAM SAYS: """${text}"""
+
+Decide the actions, then reply to Liam in one or two short lines (direct, warm, no shame, no exclamation marks). If you send a replan, say the CEO is re-planning. If he mentions an Orbit problem, use "triage" unless he's clearly reporting an idea (then "park").
+Reply with only JSON, like:
+{"reply":"…","actions":[{"type":"tick","blockId":"b3","status":"done"}]}
+Action types:
+{"type":"tick","blockId":"<id from the plan>","status":"done|active|skipped"}
+{"type":"todo","text":"…","tier":"must|planned|optional","due":"YYYY-MM-DD or null","subject":"MP|LA|MATHS|PHYS|PDA|XEN|ORBIT|LIFE"}
+{"type":"park","text":"an Orbit idea or non-urgent Orbit work"}
+{"type":"replan","scope":"today|week","reason":"what happened, in his words plus the facts you know"}
+{"type":"triage","issue":"the Orbit problem in a few words"}
+{"type":"note","text":"a fact or preference the CEO should remember (test scope, a mark, a date, 'fewer check-ins')"}
+{"type":"answer","questionId":"<id>","text":"his answer"}
+Use an empty actions array when nothing needs doing.`;
+  }
+
+  async function send() {
+    const text = input.value.trim(); if (!text || S.busy) return;
+    if (!S.db) { setState("Not connected to the Board's data."); return; }
+    input.value = ""; $("#partial").textContent = "";
+    let liamId;
+    try { liamId = await addThread({ from: "liam", via: "board", kind: "message", text }); }
+    catch (err) { input.value = text; setState(writeErr(err)); return; }
+    if (!S.sample) { setState("Saved. The CEO reads it at its next run."); return; }
+    S.busy = true; S.ctl = new AbortController(); $("#stopBtn").hidden = false; $("#sendBtn").disabled = true;
+    setState("PA is reading…", true);
+    try {
+      const r = await S.sample.json(routerPrompt(text), { ...PA_MODEL, signal: S.ctl.signal });
+      await applyActions(r, liamId);
+    } catch (err) {
+      setState(sampleErr(err));
+    } finally {
+      S.busy = false; $("#stopBtn").hidden = true; $("#sendBtn").disabled = false;
+      if (!/re-planning/.test($("#talkState").textContent)) setTimeout(() => { if (!S.busy) setState(""); }, 6000);
+    }
+  }
+  function sampleErr(e) {
+    const c = e?.code;
+    if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(c)) { S.sample = null; renderNow(); return "Claude isn't available on this view. Your message is saved for the CEO's next run."; }
+    if (c === "cancelled") return "Stopped. Your message is saved.";
+    if (c === "rate_limited") return "Claude is rate-limited for you right now. Message saved; try again in a minute.";
+    if (c === "invalid_json") return "The reply came back garbled. Message saved; send it again to retry.";
+    if (c === "refused") return "Claude wouldn't answer that one. Message saved for the CEO.";
+    return "Couldn't reach Claude. Your message is saved for the CEO.";
+  }
+  async function applyActions(r, liamId) {
+    const acts = Array.isArray(r?.actions) ? r.actions : [];
+    const reply = typeof r?.reply === "string" && r.reply.trim() ? r.reply.trim() : null;
+    let replan = null, triage = null;
+    for (const a of acts) {
+      if (!a || typeof a !== "object") continue;
+      try {
+        if (a.type === "tick" && blocks().some((b) => b.id === a.blockId) && ["done", "active", "skipped"].includes(a.status)) await setTick(String(a.blockId), a.status);
+        else if (a.type === "todo" && a.text) await S.db.collection("todos").doc(rid("t")).set({ text: String(a.text).slice(0, 300), tier: TIERS.includes(a.tier) ? a.tier : "planned", due: /^\d{4}-\d{2}-\d{2}$/.test(a.due || "") ? a.due : null, subject: subj(a.subject), done: false, createdAt: nowISO(), source: "board-pa" });
+        else if (a.type === "park" && a.text) await S.db.collection("parking").doc(rid("p")).set({ text: String(a.text).slice(0, 300), createdAt: nowISO(), status: "parked", source: "board-pa" });
+        else if (a.type === "note" && a.text) await addThread({ from: "pa", via: "board", kind: "note", text: "For the CEO: " + String(a.text).slice(0, 600), handled: false });
+        else if (a.type === "answer" && a.questionId && S.questions.some((q) => q._id === a.questionId)) await S.db.doc("questions/" + a.questionId).update({ answer: String(a.text || "").slice(0, 600), status: "answered", answeredAt: nowISO() });
+        else if (a.type === "replan" && !replan) replan = a;
+        else if (a.type === "triage" && !triage) triage = a;
+      } catch (err) { console.error("action failed", a, err); }
+    }
+    if (reply) await addThread({ from: "pa", via: "board", kind: "reply", text: reply, handled: true });
+    if (liamId && !replan) { /* left unhandled on purpose: the CEO absorbs it on its next run */ }
+    if (triage) openTriage(String(triage.issue || ""));
+    if (replan) await runCEO(replan.scope === "week" ? "week" : "today", String(replan.reason || ""), liamId);
+    else setState(acts.length ? "Done." : "");
+  }
+
+  // ---------- the CEO, in the page ----------
+  function ceoContext() {
+    const dl = (S.deadlines?.items || []).filter((d) => d.date >= addDays(S.day, -1)).map((d) => `${d.date}${d.time ? " " + d.time : ""} | ${d.subject} | ${d.kind} | ${d.title}${d.notes ? " | " + d.notes : ""}`).join("\n");
+    const wk = (S.week?.days || []).map((d) => `${d.date} | ${d.subject} | ${d.theme} | must: ${(d.must || []).join("; ")} | planned: ${(d.planned || []).join("; ")}`).join("\n");
+    const goals = (S.goals?.items || []).map((g) => `${g.id} ${g.title} | ${g.status} | now: ${g.current || "?"} | next: ${g.next || ""}`).join("\n");
+    const todos = S.todos.filter((t) => !t.done).map((t) => `${t.tier} | ${t.text}${t.due ? " | due " + t.due : ""}`).join("\n");
+    const learned = S.learned ? JSON.stringify({ timing: S.learned.timing, routines: S.learned.routines, prefs: S.learned.prefs, notes: (S.learned.notes || []).slice(-12) }).slice(0, 4000) : "{}";
+    return `THE PLAYBOOK:\n${S.playbook || "(not loaded)"}\n\nCOURSE FACTS:\n${(S.facts || "(not loaded)").slice(0, 16000)}\n\nDEADLINES:\n${dl}\n\nGOALS:\n${goals}\n\nROLLING WEEK:\n${wk}\n\nOPEN TO-DOS:\n${todos}\n\nWHAT'S BEEN LEARNED ABOUT LIAM:\n${learned}\n\nRECENT MESSAGES:\n${recentThread(14)}`;
+  }
+  const BLOCK_SHAPE = `{"id":"keep the existing id for a kept or moved block; new blocks n1, n2…","start":"HH:MM","end":"HH:MM","title":"short, concrete","detail":"what exactly to do (source, questions)","stop":"the stopping point","subject":"MP|LA|MATHS|PHYS|PDA|XEN|ORBIT|LIFE","kind":"study|work|orbit|meal|move|break|admin|test|life","tier":"must|planned|optional","est":minutes,"why":"one line, tied to a goal or deadline"}`;
+  function ceoPrompt(mode, reason) {
+    const n = hm(nowMin());
+    const head = `You are the CEO in Liam's planning system "CEO of Liam". You hold the plan; a PA does the nagging. Follow the playbook exactly.\n\n${ceoContext()}\n\nNOW: ${dayLabel(S.day)} (${S.day}), ${n} Europe/London.\n`;
+    if (mode === "week") {
+      return head + `\nCURRENT 7-DAY PLAN (JSON): ${JSON.stringify((S.week?.days || []).filter((d) => d.date >= S.day).slice(0, 7))}\n\nWHAT HAPPENED / WHAT LIAM WANTS: """${reason}"""\n\nRe-cut the rolling 7 days from ${S.day} to ${addDays(S.day, 6)} following the playbook. Keep tests and deadlines fixed. Carry unfinished must-dos to a named day.\nReply with only JSON:\n{"summary":"one sentence: what changed","next":"the one thing to do now","days":[{"date":"YYYY-MM-DD","theme":"…","subject":"MP|LA|MATHS|PHYS|PDA|XEN|ORBIT|LIFE","must":["…"],"planned":["…"],"note":"…"}]}`;
+    }
+    const cur = { blocks: blocks().map((b) => ({ ...b, status: tickOf(b)?.status || "open", actualMin: tickOf(b)?.actualMin || undefined })) };
+    if (mode === "plan") {
+      return head + `\nThere is no plan for today yet. ${reason}\nPlan the rest of today (from ${n}) following the playbook and the week plan for ${S.day}.\nReply with only JSON:\n{"summary":"one sentence","next":"the one thing to do now","headline":"short","ceoNote":"how today serves the goals, 1-2 sentences","fits":true,"blocks":[${BLOCK_SHAPE}]}`;
+    }
+    return head + `\nTODAY'S PLAN WITH STATUS (JSON): ${JSON.stringify(cur)}\n\nWHAT HAPPENED: """${reason}"""\n\nRe-plan the rest of today from ${n}, following playbook section 5 (and section 4 for Orbit). Keep every done or skipped block exactly as it is. Don't schedule anything before ${n} except blocks already done or under way. Don't plan work after 01:30 (use 24:00-25:30 for after midnight). If something must move to another day, name the day in "moved".\nReply with only JSON:\n{"summary":"one sentence: what changed","next":"the one thing to do now, with its time","fits":true,"moved":["…"],"blocks":[${BLOCK_SHAPE}]}\n"blocks" is the WHOLE day (done blocks included), in time order.`;
+  }
+  function cleanBlocks(raw, prevBlocks) {
+    const prev = new Map((prevBlocks || []).map((b) => [b.id, b]));
+    const seen = new Set(); const out = [];
+    for (const b of Array.isArray(raw) ? raw : []) {
+      if (!b || typeof b !== "object") continue;
+      const st = toMin(b.start), en = toMin(b.end);
+      if (!Number.isFinite(st) || !Number.isFinite(en) || en <= st || !b.title) continue;
+      let id = typeof b.id === "string" && /^[A-Za-z0-9_-]{1,24}$/.test(b.id) ? b.id : rid("n");
+      if (seen.has(id)) id = rid("n");
+      seen.add(id);
+      out.push({ id, start: st < 1440 ? hm(st) : String(b.start), end: en < 1440 ? hm(en) : String(b.end), title: String(b.title).slice(0, 140), detail: String(b.detail || "").slice(0, 600), stop: String(b.stop || "").slice(0, 300), subject: subj(b.subject), kind: KINDS.includes(b.kind) ? b.kind : "study", tier: TIERS.includes(b.tier) ? b.tier : "planned", est: Number.isFinite(+b.est) && +b.est > 0 ? Math.round(+b.est) : en - st, why: String(b.why || "").slice(0, 300) });
+    }
+    // never lose a block that's already done, skipped or under way
+    for (const [id, b] of prev) { const t = S.ticks[id]; if (t && (t.status === "done" || t.status === "skipped" || t.status === "active") && !seen.has(id)) out.push(b); }
+    return out.sort((a, b) => toMin(a.start) - toMin(b.start));
+  }
+  async function runCEO(mode, reason, liamId) {
+    if (!S.sample) { setState("Saved. The CEO re-plans at its next run."); return; }
+    S.busy = true; S.ctl = new AbortController(); $("#stopBtn").hidden = false; $("#sendBtn").disabled = true;
+    setState("CEO is re-planning (usually under a minute)…", true);
+    try {
+      const out = await S.sample.json(ceoPrompt(mode, reason), { ...CEO_MODEL, signal: S.ctl.signal });
+      const at = nowISO();
+      if (mode === "week") {
+        const days = (Array.isArray(out?.days) ? out.days : []).filter((d) => d && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && d.theme).map((d) => ({ date: d.date, theme: String(d.theme).slice(0, 160), subject: subj(d.subject), must: (d.must || []).map(String).slice(0, 8), planned: (d.planned || []).map(String).slice(0, 8), note: String(d.note || "").slice(0, 300) }));
+        if (!days.length) throw { code: "invalid_json" };
+        const prev = S.week;
+        const keep = (prev?.days || []).filter((d) => d.date < S.day || !days.some((x) => x.date === d.date));
+        await S.db.doc("plan/week").set({ ...(prev || {}), days: [...keep, ...days].sort((a, b) => a.date.localeCompare(b.date)), updatedAt: at, updatedBy: "board-replan", ceoNote: String(out.summary || prev?.ceoNote || "") });
+        const msgId = await addThread({ from: "ceo", via: "board", kind: "replan", text: `${out.summary || "Week re-cut."}${out.next ? "\nNext: " + out.next : ""}`, handled: true });
+        S.undo = { kind: "week", prev, msgId };
+      } else {
+        const prevPlan = S.plan;
+        const newBlocks = cleanBlocks(out?.blocks, prevPlan?.blocks);
+        if (!newBlocks.length) throw { code: "invalid_json" };
+        const base = prevPlan || { date: S.day, headline: String(out.headline || ""), ceoNote: String(out.ceoNote || ""), checkins: [], paBrief: "" };
+        const plan = { ...base, date: S.day, blocks: newBlocks, rev: (prevPlan?.rev || 0) + 1, updatedAt: at, updatedBy: mode === "plan" ? "board-plan" : "board-replan", changes: [...(prevPlan?.changes || []), { at, summary: String(out.summary || "Re-planned.").slice(0, 300) }].slice(-20) };
+        if (mode === "plan") { plan.headline = String(out.headline || plan.headline || ""); plan.ceoNote = String(out.ceoNote || plan.ceoNote || ""); }
+        await S.db.doc("days/" + S.day).set(plan);
+        const extra = [out.fits === false ? "Heads up: it doesn't all fit; lower-tier work was dropped." : "", (out.moved || []).length ? "Moved: " + out.moved.join("; ") : ""].filter(Boolean).join("\n");
+        const msgId = await addThread({ from: "ceo", via: "board", kind: "replan", text: `${out.summary || "Re-planned."}${out.next ? "\nNext: " + out.next : ""}${extra ? "\n" + extra : ""}`, handled: true });
+        S.undo = { kind: "day", day: S.day, prev: prevPlan, msgId };
+      }
+      if (liamId) { try { await S.db.doc("thread/" + liamId).update({ handled: true }); } catch {} }
+      setState("Plan updated.");
+      renderThread();
+    } catch (err) {
+      setState(sampleErr(err));
+    } finally {
+      S.busy = false; $("#stopBtn").hidden = true; $("#sendBtn").disabled = false;
+    }
+  }
+  async function undo() {
+    const u = S.undo; if (!u || !S.db) return; S.undo = null;
+    if (u.kind === "day") {
+      if (u.prev) await S.db.doc("days/" + u.day).set({ ...u.prev, rev: (S.plan?.rev || u.prev.rev || 1) + 1, updatedAt: nowISO(), updatedBy: "board-undo" });
+      else await S.db.doc("days/" + u.day).delete();
+    } else if (u.kind === "week" && u.prev) await S.db.doc("plan/week").set({ ...u.prev, updatedAt: nowISO(), updatedBy: "board-undo" });
+    await addThread({ from: "board", via: "board", kind: "undo", text: "Undone. Back to the previous plan.", handled: true });
+  }
+
+  // ---------- Orbit triage ----------
+  function openTriage(issue) {
+    const sec = $("#sec-triage"); sec.hidden = false; setTab("today");
+    if (issue) $("#triIssue").value = issue;
+    S.tri = [null, null, null];
+    for (const yn of document.querySelectorAll("#sec-triage .yn button")) yn.setAttribute("aria-pressed", "false");
+    $("#triQ3").textContent = `Can it really not wait until your next Orbit block (${nextOrbitBlock()})?`;
+    renderVerdict(); sec.scrollIntoView({ behavior: "smooth", block: "start" }); $("#triIssue").focus({ preventScroll: true });
+  }
+  $("#triageClose").addEventListener("click", () => { $("#sec-triage").hidden = true; });
+  $("#sec-triage").addEventListener("click", (e) => {
+    const b = e.target.closest(".yn button"); if (b) {
+      const q = +b.parentElement.dataset.q; S.tri[q] = b.dataset.v === "1";
+      for (const x of b.parentElement.children) x.setAttribute("aria-pressed", String(x === b));
+      renderVerdict(); return;
+    }
+    const go = e.target.closest("[data-tri]"); if (go) triageAct(go.dataset.tri);
+  });
+  function renderVerdict() {
+    const v = $("#triVerdict"); const t = S.tri;
+    if (t.some((x) => x === null) && !t.some((x) => x === false)) { v.innerHTML = `<p class="sub">Answer the three questions. All three yes is an emergency; anything else waits for the next Orbit block.</p>`; return; }
+    if (t.every((x) => x === true)) {
+      v.innerHTML = `<h3>Genuine emergency. Fix it now, with a cap.</h3><p>Do the smallest fix that unbreaks it for users. Polish waits. The CEO re-flows the rest of today around it.</p>
+        <div class="acts"><label class="sub" for="triCap">Cap</label><select id="triCap"><option>15</option><option selected>30</option><option>45</option><option>60</option></select><span class="sub">min</span><button class="btn primary" data-tri="fix">Start capped fix</button></div>`;
+    } else {
+      v.innerHTML = `<h3>Not an emergency. It waits.</h3><p>It matters, and it'll get proper time in ${esc(nextOrbitBlock())}. Park it so you don't have to hold it in your head, then go back to the block you're in.</p>
+        <div class="acts"><button class="btn primary" data-tri="park">Park it</button></div>`;
+    }
+  }
+  async function triageAct(kind) {
+    const issue = $("#triIssue").value.trim() || "Orbit issue (no description)";
+    try {
+      if (kind === "park") {
+        await S.db.collection("parking").doc(rid("p")).set({ text: issue, createdAt: nowISO(), status: "parked", source: "triage", triage: S.tri });
+        await addThread({ from: "board", via: "board", kind: "triage", text: `Orbit triage: not urgent. Parked "${issue}" for ${nextOrbitBlock()}.`, handled: true });
+        $("#sec-triage").hidden = true; $("#triIssue").value = "";
+      } else if (kind === "fix") {
+        const cap = +($("#triCap")?.value || 30);
+        await addThread({ from: "liam", via: "board", kind: "triage", text: `Orbit emergency (passed triage): ${issue}`, handled: false });
+        $("#sec-triage").hidden = true; $("#triIssue").value = "";
+        await runCEO("today", `URGENT ORBIT FIX, passed triage (broken for real users now, gets worse if it waits, can't wait for the next Orbit block). Issue: ${issue}. Insert a bounded Orbit fix block starting at ${hm(nowMin())}, capped at ${cap} minutes, then return to the plan. Re-flow the rest of today, protecting must-do study, meals and sleep.`);
+      }
+    } catch (err) { setState(writeErr(err)); }
+  }
+
+  // ---------- questions, todos, parking forms ----------
+  $("#askList").addEventListener("input", (e) => { const f = e.target.closest("form[data-q]"); if (f) S.drafts[f.dataset.q] = e.target.value; });
+  $("#askList").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target.closest("form[data-q]"); if (!f || !S.db) return;
+    const id = f.dataset.q; const val = f.querySelector("input").value.trim(); if (!val) return;
+    const q = S.questions.find((x) => x._id === id);
+    try {
+      await S.db.doc("questions/" + id).update({ answer: val, status: "answered", answeredAt: nowISO() });
+      await addThread({ from: "liam", via: "board", kind: "answer", text: `${q ? q.q + " → " : ""}${val}`, handled: false });
+      delete S.drafts[id];
+    } catch (err) { setState(writeErr(err)); }
+  });
+  $("#todoForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const t = $("#todoText").value.trim(); if (!t || !S.db) return;
+    try { await S.db.collection("todos").doc(rid("t")).set({ text: t, tier: $("#todoTier").value, due: null, subject: "LIFE", done: false, createdAt: nowISO(), source: "board" }); $("#todoText").value = ""; }
+    catch (err) { setState(writeErr(err)); }
+  });
+  $("#parkForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const t = $("#parkText").value.trim(); if (!t || !S.db) return;
+    try { await S.db.collection("parking").doc(rid("p")).set({ text: t, createdAt: nowISO(), status: "parked", source: "board" }); $("#parkText").value = ""; }
+    catch (err) { setState(writeErr(err)); }
+  });
+
+  // ---------- dictation ----------
+  function setupDictation() {
+    const d = S.dict; const btn = $("#micBtn"); if (!d) return;
+    btn.hidden = false;
+    d.onPartial(({ text }) => { $("#partial").textContent = text; });
+    d.onFinal(({ text }) => { const v = input.value; input.value = v ? v + text : text.replace(/^\s+/, ""); $("#partial").textContent = ""; });
+    d.onState(({ state, reason }) => {
+      const on = state !== "idle"; btn.classList.toggle("on", on); btn.setAttribute("aria-pressed", String(on));
+      btn.querySelector("span").textContent = on ? "Stop" : "Talk";
+      if (state === "idle" && (reason === "not_granted" || reason === "unavailable")) btn.hidden = true;
+    });
+    btn.addEventListener("click", () => {
+      if (d.active()) { d.stop().catch(() => {}); return; }
+      d.start().catch((err) => { if (err?.code === "not_granted" || err?.code === "unavailable") btn.hidden = true; else if (err?.code !== "stopped" && err?.code !== "dismissed") setState("Dictation didn't start. Type instead, or try again."); });
+    });
+  }
+
+  start();
+})();
+</script>
