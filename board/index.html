@@ -650,7 +650,10 @@ select{width:auto}
   function renderSys() {
     const st = S.status || {};
     const n = nowMin();
-    const cks = (st.checkins || []).filter((c) => c.date === S.day || !c.date).filter((c) => toMin(c.at) > n).map((c) => c.at);
+    const wd = dowOf(S.day), weekday = wd >= 1 && wd <= 5;
+    const fromPlan = (S.plan?.checkins || []).map((c) => c.at);
+    const fromSlots = (st.slots || []).filter((s) => s.days === "every day" || (weekday && /^Mon/.test(s.days || ""))).map((s) => s.at);
+    const cks = (fromPlan.length ? fromPlan : fromSlots).filter((t) => toMin(t) > n).sort((a, b) => toMin(a) - toMin(b));
     const parts2 = [];
     if (S.plan) parts2.push(`Plan rev <b>${esc(S.plan.rev || 1)}</b> · ${esc(S.plan.updatedBy || "")} ${esc(clock(S.plan.updatedAt))}`);
     parts2.push(`Last CEO run: <b>${st.lastCeoRun ? esc(dayLabel(calKey(new Date(st.lastCeoRun))) + " " + clock(st.lastCeoRun)) : "not yet"}</b>`);
