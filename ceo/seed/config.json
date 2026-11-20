@@ -2,10 +2,35 @@
   "board": "https://claude.ai/artifact/3sNAjRQVb2w98ytrrqhhaj",
   "morningTriggerId": "trig_014Wf4yyCmNT9BpnPu3HtLJ5",
   "slots": [
-    { "at": "10:27", "days": "Mon–Fri", "kind": "checkin", "triggerId": "trig_0152bQXEwp6ETngA6MsMZUSs" },
-    { "at": "12:57", "days": "every day", "kind": "checkin", "triggerId": "trig_01L3uBXkXSbKDG12CAJnF2y7" },
-    { "at": "17:03", "days": "every day", "kind": "checkin", "triggerId": "trig_01KZHWzycFcDkXfkdscDiAPx" },
-    { "at": "18:57", "days": "Mon–Fri", "kind": "checkin", "triggerId": "trig_01GreDYWfxZXBiRd7y732J2r" },
-    { "at": "22:33", "days": "every day", "kind": "raincheck", "triggerId": "trig_01XDSA46gq2YTvi2AckPLx4k" }
+    {
+      "at": "10:27",
+      "days": "Mon–Fri",
+      "kind": "checkin",
+      "triggerId": "trig_0152bQXEwp6ETngA6MsMZUSs"
+    },
+    {
+      "at": "12:57",
+      "days": "every day",
+      "kind": "checkin",
+      "triggerId": "trig_01L3uBXkXSbKDG12CAJnF2y7"
+    },
+    {
+      "at": "17:03",
+      "days": "every day",
+      "kind": "checkin",
+      "triggerId": "trig_01KZHWzycFcDkXfkdscDiAPx"
+    },
+    {
+      "at": "18:57",
+      "days": "Mon–Fri",
+      "kind": "checkin",
+      "triggerId": "trig_01GreDYWfxZXBiRd7y732J2r"
+    },
+    {
+      "at": "20:03",
+      "days": "every day",
+      "kind": "raincheck",
+      "triggerId": "trig_01XDSA46gq2YTvi2AckPLx4k"
+    }
   ]
 }

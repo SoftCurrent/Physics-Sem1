@@ -5,6 +5,16 @@ A planning system Liam doesn't have to manage. A CEO model holds the plan, a PA 
 - **The Board:** https://claude.ai/artifact/3sNAjRQVb2w98ytrrqhhaj (private to Liam). Source: [`board/index.html`](../board/index.html).
 - **Rules everyone follows:** [`playbook.md`](playbook.md). **Course facts:** [`facts.md`](facts.md). **Run instructions:** [`prompts.md`](prompts.md).
 
+## Version 2 (20 Nov 2026): your time, held to it
+
+On 20 Nov the first version argued with Liam. It asked Orbit triage questions, put back lunch and Hand-In 4 after he'd said they were done, inserted a 40-minute snack-and-movement block, and re-planned the day five times in four minutes. His brief for the fix: *"Picking what I spend my time on is not difficult. It's sticking to the amount of time that I set out for each thing."* And: school stops at 20:00, after which he works on Orbit.
+
+- **He decides what and for how long.** Simple edits (start a box, done, +15, set the time, remove) happen instantly on the Board with no model involved. The CEO only touches the plan when he asks to rearrange the day, and then changes only what he asked about.
+- **Every block is a time box.** The Board shows a big countdown that turns red when he's over, chimes when time's up, and books a phone push for the moment it's due (a one-off scheduled task the page creates through the Claude Code Remote connector when he taps Start, and deletes when he taps Done). Switching boxes cuts the running one at that moment and moves the rest of its time to straight after the new box.
+- **School stops at 20:00.** The focus view shows school time left and Orbit minutes spent before 8pm. Orbit before 20:00 is never blocked; the cost is stated plainly. The rain check is now a 20:03 school-day wrap-up, and nothing nags after it.
+- **The focus view** (the default tab) shows only the running box, the school clock and the chat box. The plan, questions, messages, lists, week, runway and goals sit behind tabs.
+- **No triage, no inserted meals or movement.** Lunch and dinner are short blocks he can remove with one word.
+
 ## The design in one paragraph
 
 The system's memory is the Board's database, not a chat. Every model run is short and fresh: it reads the database, does one job, writes back, and ends. So there's no ultra-long session to babysit, and a run that fails takes nothing else down with it. The CEO (Sonnet 5.5) plans each morning and re-plans on demand. The PA (Haiku 5.5) is a fresh session at every check-in slot: it reads the brief the CEO wrote for that slot, sends one push, and handles Liam's reply. When a reply needs a re-plan, the PA calls the CEO desk, a Sonnet subagent that rewrites the day and hands back one line. The Board shows the plan, takes ticks and messages, and can call the CEO itself for an instant re-plan.
@@ -58,15 +68,16 @@ flowchart LR
 | Task | Schedule (Europe/London) | Model | ID |
 |---|---|---|---|
 | CEO of Liam · CEO morning plan | 08:20 daily | Sonnet 5.5 | `trig_014Wf4yyCmNT9BpnPu3HtLJ5` |
-| CEO of Liam · PA 10:27 Orbit wrap-up | 10:27 Mon–Fri | Haiku 5.5 | `trig_0152bQXEwp6ETngA6MsMZUSs` |
+| CEO of Liam · PA 10:27 check-in | 10:27 Mon–Fri | Haiku 5.5 | `trig_0152bQXEwp6ETngA6MsMZUSs` |
 | CEO of Liam · PA 12:57 lunch check-in | 12:57 daily | Haiku 5.5 | `trig_01L3uBXkXSbKDG12CAJnF2y7` |
-| CEO of Liam · PA 17:03 afternoon check-in | 17:03 daily (on from 18 Nov) | Haiku 5.5 | `trig_01KZHWzycFcDkXfkdscDiAPx` |
-| CEO of Liam · PA 18:57 dinner check-in | 18:57 Mon–Fri (on from 18 Nov) | Haiku 5.5 | `trig_01GreDYWfxZXBiRd7y732J2r` |
-| CEO of Liam · PA 22:33 rain check | 22:33 daily | Haiku 5.5 | `trig_01XDSA46gq2YTvi2AckPLx4k` |
+| CEO of Liam · PA 17:03 afternoon check-in | 17:03 daily | Haiku 5.5 | `trig_01KZHWzycFcDkXfkdscDiAPx` |
+| CEO of Liam · PA 18:57 check-in | 18:57 Mon–Fri | Haiku 5.5 | `trig_01GreDYWfxZXBiRd7y732J2r` |
+| CEO of Liam · PA 20:03 school-day wrap-up | 20:03 daily | Haiku 5.5 | `trig_01XDSA46gq2YTvi2AckPLx4k` |
+| PA · time's up · {time} {box} | one-off, booked by the Board when a box starts | Haiku 5.5 | varies |
 
-All run in fresh sessions with push notifications on. Times avoid 14:00–17:00 London, when scheduled runs can start late. The 17:03 and 18:57 slots were created paused so 17 Nov didn't double up with the claude.ai Project's own check-ins (17:15, 19:30, 21:30), and are switched on at 08:05 on 18 Nov by a one-off reminder to the session that built this (`trig_0187zgxgqL2knUgsLNvhakF6`). If that didn't happen, switch them on in the scheduled-tasks list.
+All run in fresh sessions with push notifications on. Check-in pushes are about the clock: time left on the running box, how far over it is, or "nothing running: what's next and for how long?".
 
-To pause everything, disable all six. To change the cadence, edit the cron times (from a Claude Code session or the scheduled-tasks page) and the slot list in `playbook.md` section 6.
+To pause everything, disable the six recurring tasks. To change the cadence, edit the cron times (from a Claude Code session or the scheduled-tasks page) and the slot list in `playbook.md` section 4.
 
 ## Changing it
 
