@@ -12,6 +12,7 @@ From Liam's course pages (screenshots in this repo) and what he has said. Last c
 | **Thu 26 Nov, 15:10** | **P&MDE Physics Test 2** | 25% of P&MDE | Scope: Liam will send it. Physics Test 1 was 70-something %. |
 | Thu 26 Nov, 17:00 | Data Analysis checkpoints 4.2 to 5 | CP5 20% | |
 | **Mon 30 Nov, 09:00** | **Modern Physics Class Test 2** (in the lecture) | 10% of MP | All quantum mechanics. Probably no past papers; workshop material is the best source. |
+| **Mon 30 Nov, 14:10** | **P&MDE Maths Test 1 rewrite** | replaces the T1 mark (25%) | Confirmed by Liam on 26 Nov. Same day as the QM test. |
 | Tue 1 Dec | Linear Algebra Hand-In 5 | part of LA's 20% | |
 | Thu 3 Dec, 17:00 | Data Analysis checkpoint 6 | 35% | Must score 40%+; PDA can't be passed without it. |
 | **Thu 17 Dec** | **Linear Algebra & Vector Calculus exam** | 80% of LA | 1h45, answer all 6 questions. No calculator, no constants sheet, no synopsis sheet. Must get 40%+ in the exam. |
