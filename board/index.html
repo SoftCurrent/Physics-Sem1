@@ -293,7 +293,7 @@ select{width:auto}
       </form>
     </section>
     <section id="sec-park" class="card" data-tab="lists">
-      <div class="sec-h"><h2>Orbit list</h2><span class="sub">for after 20:00</span></div>
+      <div class="sec-h"><h2>Orbit list</h2><span class="sub">for after school</span></div>
       <div id="parkList"><p class="empty">Empty.</p></div>
       <form class="add" id="parkForm">
         <label for="parkText" class="sub" hidden>New Orbit item</label>
@@ -326,7 +326,9 @@ select{width:auto}
   "use strict";
   const TZ = "Europe/London";
   const BOARD_URL = "https://claude.ai/artifact/3sNAjRQVb2w98ytrrqhhaj";
-  const SCHOOL_END = 20 * 60; // school stops at 20:00; after that it's Orbit time
+  // School stops at 20:00; from Fri 4 Dec (exam run) it stops at 21:00 and Orbit waits until then.
+  const SCHOOL_END = Date.now() >= Date.UTC(2026, 11, 4) ? 21 * 60 : 20 * 60;
+  const SE = SCHOOL_END === 21 * 60 ? "21:00" : "20:00", SEPM = SCHOOL_END === 21 * 60 ? "9pm" : "8pm";
   const SUBJ = { MP: "Modern Physics", LA: "Linear Algebra", MATHS: "P&MDE Maths", PHYS: "P&MDE Physics", PDA: "Data Analysis", XEN: "Xenith", ORBIT: "Orbit", LIFE: "Life" };
   const SCHOOL = new Set(["MP", "LA", "MATHS", "PHYS", "PDA"]);
   const TIERS = ["must", "planned", "optional"];
@@ -428,7 +430,7 @@ select{width:auto}
     const a = activeBlock(); if (a) { const lateMin = (Date.now() - dueOf(a)) / 6e4; if (lateMin > GRACE) over += lateMin; }
     return { kept, total, over: Math.round(over) };
   }
-  const schoolNote = (extra) => { const left = schoolLeftMin(); if (left <= 0) return ""; return `${extra ? extra + " " : ""}${dur(left)} of school time left before 20:00.`; };
+  const schoolNote = (extra) => { const left = schoolLeftMin(); if (left <= 0) return ""; return `${extra ? extra + " " : ""}${dur(left)} of school time left before ${SE}.`; };
 
   // ---------- render ----------
   function renderHeader() {
@@ -464,7 +466,7 @@ select{width:auto}
         <p class="clock" id="clockTxt">${left >= 0 ? mmss(left) : "+" + mmss(left)}</p>
         <p class="clock-sub" id="clockSub">${left >= 0 ? `left of the ${box} min you set` : `over the ${box} min you set. Wrap up.`}${ext ? ` · ${ext} min added` : ""}</p>
         <div class="bar"><i id="clockBar" style="width:${pct.toFixed(1)}%"></i></div>
-        ${s === "ORBIT" && !afterSchool ? `<p class="sub" style="margin:-6px 0 12px">Orbit before 20:00 comes out of school time. ${esc(dur(schoolLeftMin()))} of school left today.</p>` : ""}
+        ${s === "ORBIT" && !afterSchool ? `<p class="sub" style="margin:-6px 0 12px">Orbit before ${SE} comes out of school time. ${esc(dur(schoolLeftMin()))} of school left today.</p>` : ""}
         <div class="acts">
           <button class="btn primary big" data-act="done" data-id="${esc(act.id)}">Done</button>
           <button class="btn" data-act="extend" data-min="15">+15</button>
@@ -477,7 +479,7 @@ select{width:auto}
       el.className = "card now"; delete el.dataset.s;
       const next = bl.find((b) => !closed(b) && toMin(b.end) > n);
       if (afterSchool && (!next || !SCHOOL.has(subj(next.subject)))) {
-        html = `<p class="eyebrow">Now · <span class="mono">${hm(n)}</span></p><p class="box-title">School's done for today. Orbit time.</p><p class="clock-sub" style="margin-top:6px">No time boxes after 20:00 unless you set one.</p>`;
+        html = `<p class="eyebrow">Now · <span class="mono">${hm(n)}</span></p><p class="box-title">School's done for today. Orbit time.</p><p class="clock-sub" style="margin-top:6px">No time boxes after ${SE} unless you set one.</p>`;
       } else if (next) {
         const s = subj(next.subject); const m = setMin(next);
         html = `<p class="eyebrow">Nothing running · <span class="mono">${hm(n)}</span></p>
@@ -515,8 +517,8 @@ select{width:auto}
   function renderStrip() {
     const el = $("#sec-strip"); if (!S.db) { el.innerHTML = ""; return; }
     const left = schoolLeftMin(), orb = orbitBefore8Min(), sc = boxScore();
-    el.innerHTML = `<div class="stat ${left <= 0 ? "done" : ""}"><p class="k">School left</p><p class="v">${left > 0 ? esc(dur(left)) : "done"}</p><p class="n">stops at 20:00</p></div>
-      <div class="stat orbit"><p class="k">Orbit before 8pm</p><p class="v">${esc(dur(orb))}</p><p class="n">school time spent</p></div>
+    el.innerHTML = `<div class="stat ${left <= 0 ? "done" : ""}"><p class="k">School left</p><p class="v">${left > 0 ? esc(dur(left)) : "done"}</p><p class="n">stops at ${SE}</p></div>
+      <div class="stat orbit"><p class="k">Orbit before ${SEPM}</p><p class="v">${esc(dur(orb))}</p><p class="n">school time spent</p></div>
       <div class="stat"><p class="k">Boxes kept</p><p class="v">${sc.total ? `${sc.kept}/${sc.total}` : "–"}</p><p class="n">${sc.over ? `${sc.over} min over` : "on time"}</p></div>`;
   }
   function renderLast() {
@@ -539,7 +541,7 @@ select{width:auto}
     for (const b of bl) {
       const st = toMin(b.start), en = toMin(b.end);
       if (!placedNow && st > n) { html += `<li class="nowline" aria-label="Now"><span class="mono">${hm(n)}</span></li>`; placedNow = true; }
-      if (!placedSchool && st >= SCHOOL_END) { html += `<li class="schoolline">20:00 · school stops, Orbit time</li>`; placedSchool = true; }
+      if (!placedSchool && st >= SCHOOL_END) { html += `<li class="schoolline">${SE} · school stops, Orbit time</li>`; placedSchool = true; }
       const t = tickOf(b), s = subj(b.subject), status = t?.status || "";
       const cls = ["row", status && "is-" + status, en <= n && "is-past"].filter(Boolean).join(" ");
       let stTxt = "", stCls = "";
@@ -556,7 +558,7 @@ select{width:auto}
           <button class="btn ghost" data-act="remove" data-id="${esc(b.id)}">Remove</button></div></div>` : ""}</li>`;
     }
     if (!placedNow) html += `<li class="nowline" aria-label="Now"><span class="mono">${hm(n)}</span></li>`;
-    if (!placedSchool && n < SCHOOL_END) html += `<li class="schoolline">20:00 · school stops, Orbit time</li>`;
+    if (!placedSchool && n < SCHOOL_END) html += `<li class="schoolline">${SE} · school stops, Orbit time</li>`;
     box.innerHTML = html + "</ol>";
   }
   function renderAsks() {
@@ -660,7 +662,7 @@ select{width:auto}
     const plan = { ...prev, date: S.day, blocks: list.slice().sort(byStart), rev: (prev.rev || 0) + 1, updatedAt: at, updatedBy: by, changes: [...(prev.changes || []), { at, summary: String(summary).slice(0, 300) }].slice(-20) };
     S.plan = plan; await S.db.doc("days/" + S.day).set(plan);
   }
-  // Push later blocks back so nothing overlaps the anchor; school blocks never run past 20:00.
+  // Push later blocks back so nothing overlaps the anchor; school blocks never run past the end of the school day.
   function reflow(list, anchorId) {
     const sorted = list.slice().sort((a, b) => byStart(a, b) || (a.id === anchorId ? -1 : b.id === anchorId ? 1 : 0)); const out = []; const notes = []; let cursor = null;
     for (let b of sorted) {
@@ -671,7 +673,7 @@ select{width:auto}
       const len = toMin(b.end) - toMin(b.start); let st = cursor, en = cursor + len;
       if (SCHOOL.has(subj(b.subject)) && en > SCHOOL_END) en = SCHOOL_END;
       if (en - st < 10) { notes.push(`dropped ${b.title}`); continue; }
-      notes.push(`${b.title} now ${hmRaw(st)}–${hmRaw(en)}${en - st < len ? ` (${en - st} min, cut at 20:00)` : ""}`);
+      notes.push(`${b.title} now ${hmRaw(st)}–${hmRaw(en)}${en - st < len ? ` (${en - st} min, cut at ${SE})` : ""}`);
       b = { ...b, start: hmRaw(st), end: hmRaw(en), est: en - st }; cursor = en; out.push(b);
     }
     return { out, notes };
@@ -680,7 +682,7 @@ select{width:auto}
   // ---------- phone alarm: a one-off scheduled push at the end of each time box ----------
   function pushPrompt(b, box, startedISO, dueISO) {
     const s = subj(b.subject); const orbitDay = s === "ORBIT" && toMin(clock(dueISO)) < SCHOOL_END;
-    const line = `${clock(dueISO)} · Time's up: ${b.title}. You set ${box} min. Wrap up now. Reply done, or extend 15.${orbitDay ? " Orbit before 8pm comes out of school time." : ""}`;
+    const line = `${clock(dueISO)} · Time's up: ${b.title}. You set ${box} min. Wrap up now. Reply done, or extend 15.${orbitDay ? " Orbit before ${SEPM} comes out of school time." : ""}`;
     return `You are Liam's PA. A time box he set himself has just run out. Nobody else is watching; never ask anyone for permission.
 Box: "${b.title}" (${SUBJ[s]}), ${box} min, started ${clock(startedISO)}, due ${clock(dueISO)} on ${S.day} (Europe/London). Board: ${BOARD_URL}
 1. Load the ArtifactData tool (ToolSearch "select:ArtifactData") and get collection "ticks", doc_id "${S.day}__${b.id}".
@@ -835,7 +837,7 @@ Never argue, never ask questions back, never lecture. Liam decides what he works
   });
   function orbitNote(b, min, extended) {
     if (!b || subj(b.subject) !== "ORBIT" || nowMin() >= SCHOOL_END) return;
-    setState(`${extended ? "+" + min : min} min of Orbit before 20:00 = ${min} min less school today. ${dur(schoolLeftMin())} of school left.`);
+    setState(`${extended ? "+" + min : min} min of Orbit before ${SE} = ${min} min less school today. ${dur(schoolLeftMin())} of school left.`);
   }
   document.addEventListener("submit", async (e) => {
     if (e.target.id !== "otherForm") return; e.preventDefault();
@@ -870,10 +872,10 @@ THE RULES (non-negotiable):
 - Trust what he reports. If he says something is done or he has eaten, it is done. Never re-add it.
 - Change only what he asked about. Leave everything else alone.
 - Your job is to hold him to the time HE set. That's it.
-- School stops at 20:00; after that is his Orbit time. The board itself adds the school-time reminder, so you don't need to.
+- School stops at ${SE}; after that is his Orbit time. The board itself adds the school-time reminder, so you don't need to.
 - Reply in one short plain line. No lecture, no exclamation marks, no apology essays.
 
-NOW: ${dayLabel(S.day)}, ${hm(nowMin())} Europe/London. School time left before 20:00: ${dur(schoolLeftMin())}.
+NOW: ${dayLabel(S.day)}, ${hm(nowMin())} Europe/London. School time left before ${SE}: ${dur(schoolLeftMin())}.
 RUNNING NOW: ${a ? `${a.id} "${a.title}" (${setMin(a)} min set, due ${clock(new Date(dueOf(a)).toISOString())})` : "nothing"}
 TODAY'S PLAN (id | time | subject | minutes | title | status):
 ${planSummary()}
@@ -893,7 +895,7 @@ Reply with only JSON: {"reply":"…","actions":[…]}. Action shapes:
 {"type":"settime","blockId":"<id>","minutes":N}   he wants a different amount of time for a block
 {"type":"replan","reason":"…"}   ONLY when he asks to rearrange the rest of the day ("maths till 6 then…", "redo today")
 {"type":"todo","text":"…","tier":"must|planned|optional","due":"YYYY-MM-DD or null"}
-{"type":"park","text":"Orbit job for after 20:00"}
+{"type":"park","text":"Orbit job for after ${SE}"}
 {"type":"note","text":"a fact or preference the CEO should remember"}
 {"type":"answer","questionId":"<id>","text":"…"}
 For "already done X" / "I've eaten": use "done" if X is running, otherwise "remove". Use an empty actions array when nothing needs doing.`;
@@ -938,7 +940,7 @@ For "already done X" / "I've eaten": use "done" if X is running, otherwise "remo
         else if (a.type === "replan" && !replan) replan = a;
       } catch (err) { console.error("action failed", a, err); }
     }
-    if (orbitMin && nowMin() < SCHOOL_END) extras.push(`That's ${orbitMin} min of school time on Orbit. ${dur(schoolLeftMin())} of school left before 20:00.`);
+    if (orbitMin && nowMin() < SCHOOL_END) extras.push(`That's ${orbitMin} min of school time on Orbit. ${dur(schoolLeftMin())} of school left before ${SE}.`);
     const reply = [typeof r?.reply === "string" ? r.reply.trim() : "", ...extras].filter(Boolean).join("\n");
     if (reply) await addThread({ from: "pa", via: "board", kind: "reply", text: reply, handled: true });
     if (liamId && acts.length && !replan) await S.db.doc("thread/" + liamId).update({ handled: true }).catch(() => {});
@@ -957,7 +959,7 @@ THE RULES (non-negotiable):
 - Liam decides what and for how long. Put in exactly what he asked for, with exactly the times he gave. Don't question it, don't add triage, don't "protect" anything against his wishes.
 - Change only what his request touches. Keep every other block exactly as it is (same id, times, title).
 - Trust what he reports as done or eaten: never add it back.
-- School stops at 20:00. Don't put school work after 20:00. After 20:00 is his Orbit time: no blocks unless he asked.
+- School stops at ${SE}. Don't put school work after ${SE}. After ${SE} is his Orbit time: no blocks unless he asked.
 - Don't add meals, snacks, movement or breaks he didn't ask for. Don't add explanations to block titles.
 - If a hard deadline is genuinely at risk, say so in ONE short clause in "summary". That's the only pushback allowed.
 
